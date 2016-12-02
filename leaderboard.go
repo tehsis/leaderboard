@@ -1,7 +1,5 @@
 package leaderboard
 
-import "fmt"
-
 // Score represents the points obtained by username
 type Score struct {
 	Username string
@@ -31,7 +29,7 @@ func (l *LeaderBoard) Set(n string, s uint) uint {
 		Username: n,
 		Points:   s,
 	})
-	fmt.Printf("Scores %v points: %v, username: %v", l, n, s)
+
 	return 1
 }
 
