@@ -1,5 +1,9 @@
 package leaderboard
 
+import (
+	"gopkg.in/redis.v5"
+)
+
 // Score represents the points obtained by username
 type Score struct {
 	Username string
@@ -15,44 +19,41 @@ type Board interface {
 
 // LeaderBoard is a list of scores
 type LeaderBoard struct {
+	repo   leaderBoardRepo
 	scores []Score
 }
 
-// New creates a new leaderboard
-func (l *LeaderBoard) New() {
-	l.scores = make([]Score, 0)
+// NewRedisLeaderBoard buils a leaderboard using a redis repo
+func NewRedisLeaderBoard(addr string) LeaderBoard {
+	redisClient := redis.NewClient(&redis.Options{
+		Addr: addr,
+	})
+
+	repo := NewRedisRepo(redisClient)
+
+	return NewLeaderBoard(repo)
+}
+
+// NewLeaderBoard builds a leaderboard using a custom repo
+func NewLeaderBoard(repo leaderBoardRepo) LeaderBoard {
+	return LeaderBoard{
+		repo: repo,
+	}
 }
 
 // Set adds a new score to the leaderboard returning its position
 func (l *LeaderBoard) Set(n string, s uint) uint {
-	l.scores = append(l.scores, Score{
-		Username: n,
-		Points:   s,
-	})
+	_, pos := l.repo.Add(n, s)
 
-	return 1
+	return pos
 }
 
 // Get returns the score recorded for n and the position in the leaderboard
 func (l *LeaderBoard) Get(n string) (uint, uint) {
-	var r Score
-	var position uint
-
-	for i, s := range l.scores {
-		if s.Username == n {
-			r = s
-			position = uint(i)
-		}
-	}
-
-	return position, r.Points
+	return l.repo.Get(n)
 }
 
 // GetTop returns the n best scores in the leaderboard
 func (l *LeaderBoard) GetTop(n uint) []Score {
-	if len(l.scores) < int(n) {
-		return l.scores[:]
-	}
-
-	return l.scores[:n]
+	return l.repo.Range(1, n)
 }
