@@ -24,11 +24,7 @@ type LeaderBoard struct {
 }
 
 // NewRedisLeaderBoard buils a leaderboard using a redis repo
-func NewRedisLeaderBoard(addr string) LeaderBoard {
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: addr,
-	})
-
+func NewRedisLeaderBoard(redisClient *redis.Client) LeaderBoard {
 	repo := NewRedisRepo(redisClient)
 
 	return NewLeaderBoard(repo)

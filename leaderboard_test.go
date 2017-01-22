@@ -3,11 +3,17 @@ package leaderboard_test
 import (
 	"testing"
 
+	redis "gopkg.in/redis.v5"
+
 	"github.com/tehsis/leaderboard"
 )
 
 func TestLeaderBoardSet(t *testing.T) {
-	lb := leaderboard.NewRedisLeaderBoard("localhost:6379")
+	redisClient := redis.NewClient(&redis.Options{
+		Addr: "localhost:6379",
+	})
+
+	lb := leaderboard.NewRedisLeaderBoard(redisClient)
 
 	pos := lb.Set("tehsis", 20)
 
@@ -29,7 +35,11 @@ func TestLeaderBoardSet(t *testing.T) {
 }
 
 func TestLeaderboardGet(t *testing.T) {
-	lb := leaderboard.NewRedisLeaderBoard("localhost:6379")
+	redisClient := redis.NewClient(&redis.Options{
+		Addr: "localhost:6379",
+	})
+
+	lb := leaderboard.NewRedisLeaderBoard(redisClient)
 
 	lb.Set("tehsis", 20)
 
@@ -56,7 +66,11 @@ func TestLeaderboardGet(t *testing.T) {
 }
 
 func TestLeaderboardGetTop(t *testing.T) {
-	lb := leaderboard.NewRedisLeaderBoard("localhost:6379")
+	redisClient := redis.NewClient(&redis.Options{
+		Addr: "localhost:6379",
+	})
+
+	lb := leaderboard.NewRedisLeaderBoard(redisClient)
 	lb.Set("tehsis", 20)
 	lb.Set("lenny", 30)
 	lb.Set("carl", 10)
