@@ -1,10 +1,9 @@
-package leaderboard_test
+package leaderboard
 
 import (
 	"testing"
 
 	uuid "github.com/satori/go.uuid"
-	"github.com/tehsis/leaderboard"
 	"gopkg.in/redis.v5"
 )
 
@@ -13,15 +12,15 @@ func TestAdd(t *testing.T) {
 		Addr: "localhost:6379",
 	})
 
-	repo := leaderboard.NewRedisRepo(client)
+	repo := newRedisRepo(client)
 
-	_, posTehsis := repo.Add("tehsis", 10)
+	_, posTehsis := repo.add("tehsis", 10)
 
 	if posTehsis != 1 {
 		t.Error("Expected position 1 and is ", posTehsis)
 	}
 
-	_, posTehsis = repo.Get("tehsis")
+	_, posTehsis = repo.get("tehsis")
 
 	if posTehsis != 1 {
 		t.Error("Expected position 1 and is ", posTehsis)
@@ -33,11 +32,11 @@ func TestGet(t *testing.T) {
 		Addr: "localhost:6379",
 	})
 
-	repo := leaderboard.NewRedisRepo(client)
+	repo := newRedisRepo(client)
 
-	score, _ := repo.Add("tehsis", 10)
+	score, _ := repo.add("tehsis", 10)
 
-	score, _ = repo.Get("tehsis")
+	score, _ = repo.get("tehsis")
 
 	if score != 10 {
 		t.Error("Expected score 10 and got", score)
@@ -49,13 +48,13 @@ func TestRange(t *testing.T) {
 		Addr: "localhost:6379",
 	})
 
-	repo := leaderboard.NewRedisRepo(client)
+	repo := newRedisRepo(client)
 
 	for i := 0; i < 10; i++ {
-		repo.Add(uuid.NewV4().String(), uint(i))
+		repo.add(uuid.NewV4().String(), uint(i))
 	}
 
-	top10 := repo.Range(1, 10)
+	top10 := repo.repoRange(1, 10)
 
 	for index, score := range top10 {
 		if score.Points != uint(9-index) {

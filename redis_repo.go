@@ -7,24 +7,21 @@ import (
 )
 
 // RedisRepo allows to save data on redis
-type RedisRepo struct {
+type redisRepo struct {
 	identifier string
 	client     *redis.Client
 }
 
-// RedisOptions is a struct of redis options
-type RedisOptions redis.Options
-
 // NewRedisRepo setups a new client
-func NewRedisRepo(client *redis.Client) RedisRepo {
-	return RedisRepo{
+func newRedisRepo(client *redis.Client) redisRepo {
+	return redisRepo{
 		identifier: uuid.NewV4().String(),
 		client:     client,
 	}
 }
 
 // Get gets the score and position of username
-func (r RedisRepo) Get(username string) (uint, uint) {
+func (r redisRepo) get(username string) (uint, uint) {
 	pos, err := r.client.ZRevRank(r.identifier, username).Result()
 
 	score, err := r.client.ZScore(r.identifier, username).Result()
@@ -40,24 +37,22 @@ func (r RedisRepo) Get(username string) (uint, uint) {
 }
 
 // Add adds a new score
-func (r RedisRepo) Add(username string, score uint) (uint, uint) {
+func (r redisRepo) add(username string, score uint) (uint, uint) {
 	r.client.ZAdd(r.identifier, redis.Z{
 		Score:  float64(score),
 		Member: username,
 	})
 
-	score, pos := r.Get(username)
+	score, pos := r.get(username)
 
 	return score, pos
 }
 
-// Range gets the top
-func (r RedisRepo) Range(from, to uint) []Score {
+// range gets the users starting at position from until position to
+func (r redisRepo) repoRange(from, to uint) []Score {
 
 	if to < from {
-		aux := to
-		to = from
-		from = aux
+		panic("from parameter can not be lower than to!")
 	}
 
 	// Redis range is 0 based
