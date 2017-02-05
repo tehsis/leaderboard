@@ -25,7 +25,7 @@ func main() {
 		Addr: "localhost:6379",
 	})
 
-  scores := leaderboard.NewRedisLeaderBoard(client)
+  scores := leaderboard.NewRedisLeaderBoard("Space Invaders", client)
 
   scores.Set("Tehsis", 100)
   scores.Set("0xBunny", 10)
