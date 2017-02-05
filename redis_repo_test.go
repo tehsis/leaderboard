@@ -12,7 +12,7 @@ func TestAdd(t *testing.T) {
 		Addr: "localhost:6379",
 	})
 
-	repo := newRedisRepo(client)
+	repo := newRedisRepo(uuid.NewV4().String(), client)
 
 	_, posTehsis := repo.add("tehsis", 10)
 
@@ -32,7 +32,7 @@ func TestGet(t *testing.T) {
 		Addr: "localhost:6379",
 	})
 
-	repo := newRedisRepo(client)
+	repo := newRedisRepo(uuid.NewV4().String(), client)
 
 	score, _ := repo.add("tehsis", 10)
 
@@ -48,7 +48,7 @@ func TestRange(t *testing.T) {
 		Addr: "localhost:6379",
 	})
 
-	repo := newRedisRepo(client)
+	repo := newRedisRepo(uuid.NewV4().String(), client)
 
 	for i := 0; i < 10; i++ {
 		repo.add(uuid.NewV4().String(), uint(i))

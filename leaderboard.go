@@ -19,20 +19,22 @@ type Board interface {
 
 // LeaderBoard is a list of scores
 type LeaderBoard struct {
+	name   string
 	repo   leaderBoardRepo
 	scores []Score
 }
 
 // NewRedisLeaderBoard buils a leaderboard using a redis repo
-func NewRedisLeaderBoard(redisClient *redis.Client) LeaderBoard {
-	repo := newRedisRepo(redisClient)
+func NewRedisLeaderBoard(name string, redisClient *redis.Client) LeaderBoard {
+	repo := newRedisRepo(name, redisClient)
 
-	return NewLeaderBoard(repo)
+	return NewLeaderBoard(name, repo)
 }
 
 // NewLeaderBoard builds a leaderboard using a custom repo
-func NewLeaderBoard(repo leaderBoardRepo) LeaderBoard {
+func NewLeaderBoard(name string, repo leaderBoardRepo) LeaderBoard {
 	return LeaderBoard{
+		name: name,
 		repo: repo,
 	}
 }

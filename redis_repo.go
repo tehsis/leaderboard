@@ -1,10 +1,6 @@
 package leaderboard
 
-import (
-	uuid "github.com/satori/go.uuid"
-
-	redis "gopkg.in/redis.v5"
-)
+import redis "gopkg.in/redis.v5"
 
 // RedisRepo allows to save data on redis
 type redisRepo struct {
@@ -13,9 +9,9 @@ type redisRepo struct {
 }
 
 // NewRedisRepo setups a new client
-func newRedisRepo(client *redis.Client) redisRepo {
+func newRedisRepo(name string, client *redis.Client) redisRepo {
 	return redisRepo{
-		identifier: uuid.NewV4().String(),
+		identifier: name,
 		client:     client,
 	}
 }
