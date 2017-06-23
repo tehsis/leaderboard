@@ -40,18 +40,18 @@ func NewLeaderBoard(name string, repo leaderBoardRepo) LeaderBoard {
 }
 
 // Set adds a new score to the leaderboard returning its position
-func (l *LeaderBoard) Set(n string, s uint) (currentScore uint) {
-	_, pos := l.repo.add(n, s)
+func (l *LeaderBoard) Set(n string, s uint) (currentScore uint, err error) {
+	_, pos, err := l.repo.add(n, s)
 
-	return pos
+	return pos, err
 }
 
 // Get returns the score recorded for n and the position in the leaderboard
-func (l *LeaderBoard) Get(n string) (currentScore uint, currentPosition uint) {
+func (l *LeaderBoard) Get(n string) (currentScore uint, currentPosition uint, err error) {
 	return l.repo.get(n)
 }
 
 // GetTop returns the n best scores in the leaderboard
-func (l *LeaderBoard) GetTop(n uint) []Score {
+func (l *LeaderBoard) GetTop(n uint) ([]Score, error) {
 	return l.repo.repoRange(1, n)
 }

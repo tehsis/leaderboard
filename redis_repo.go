@@ -1,6 +1,10 @@
 package leaderboard
 
-import redis "gopkg.in/redis.v5"
+import (
+	"sync"
+
+	redis "gopkg.in/redis.v5"
+)
 
 // RedisRepo allows to save data on redis
 type redisRepo struct {
@@ -17,35 +21,54 @@ func newRedisRepo(name string, client *redis.Client) redisRepo {
 }
 
 // Get gets the score and position of username
-func (r redisRepo) get(username string) (uint, uint) {
-	pos, err := r.client.ZRevRank(r.identifier, username).Result()
+func (r redisRepo) get(username string) (uint, uint, error) {
+	var wg sync.WaitGroup
+	var err error
+	var pos int64
+	var score float64
 
-	score, err := r.client.ZScore(r.identifier, username).Result()
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		pos, err = r.client.ZRevRank(r.identifier, username).Result()
+
+		// Redis order is 0-based
+		pos++
+	}()
+
+	go func() {
+		defer wg.Done()
+		score, err = r.client.ZScore(r.identifier, username).Result()
+	}()
+
+	wg.Wait()
 
 	if err != nil {
-		return 0, 0
+		return 0, 0, err
 	}
 
-	// Redis order is 0-based
-	pos++
-
-	return uint(score), uint(pos)
+	return uint(score), uint(pos), nil
 }
 
 // Add adds a new score
-func (r redisRepo) add(username string, score uint) (uint, uint) {
+func (r redisRepo) add(username string, score uint) (uint, uint, error) {
 	r.client.ZAdd(r.identifier, redis.Z{
 		Score:  float64(score),
 		Member: username,
 	})
 
-	score, pos := r.get(username)
+	score, pos, err := r.get(username)
 
-	return score, pos
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return score, pos, nil
 }
 
 // range gets the users starting at position from until position to
-func (r redisRepo) repoRange(from, to uint) []Score {
+func (r redisRepo) repoRange(from, to uint) ([]Score, error) {
 
 	if to < from {
 		panic("from parameter can not be lower than to!")
@@ -55,9 +78,13 @@ func (r redisRepo) repoRange(from, to uint) []Score {
 	from--
 	to--
 
-	rank, _ := r.client.ZRevRangeWithScores(r.identifier, int64(from), int64(to)).Result()
+	rank, err := r.client.ZRevRangeWithScores(r.identifier, int64(from), int64(to)).Result()
 
-	ranking := make([]Score, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	ranking := []Score{}
 
 	for _, r := range rank {
 		username, ok := r.Member.(string)
@@ -74,5 +101,5 @@ func (r redisRepo) repoRange(from, to uint) []Score {
 		ranking = append(ranking, newScore)
 	}
 
-	return ranking
+	return ranking, nil
 }
