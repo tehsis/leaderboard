@@ -1,0 +1,10 @@
+leaderboard:
+  build: .
+  working_dir: /go/src/github.com/tehsis/leaderboard
+  volumes:
+    - .:/go/src/github.com/tehsis/leaderboard
+  links:
+    - db
+  tty: true
+db:
+  image: redis
