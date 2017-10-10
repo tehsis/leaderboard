@@ -1,7 +1,7 @@
 package leaderboard
 
 import (
-	"gopkg.in/redis.v5"
+	"github.com/go-redis/redis"
 )
 
 // Score represents the points obtained by username

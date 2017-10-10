@@ -3,8 +3,9 @@ package leaderboard
 import (
 	"testing"
 
+	"github.com/go-redis/redis"
+
 	uuid "github.com/satori/go.uuid"
-	"gopkg.in/redis.v5"
 )
 
 func TestAdd(t *testing.T) {

@@ -3,7 +3,7 @@ package leaderboard
 import (
 	"sync"
 
-	redis "gopkg.in/redis.v5"
+	"github.com/go-redis/redis"
 )
 
 // RedisRepo allows to save data on redis
